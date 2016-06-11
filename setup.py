@@ -110,10 +110,8 @@ class Command_CreatePOT(Command):
         list_files_process = []
         list_files_remove = []
         if self.use_intltool_extract:
-            # Scan *.glade and *.ui files to extract messages
-            for filename in list(chain(
-                    glob(os.path.join(self.dir_ui, '*.glade')),
-                    glob(os.path.join(self.dir_ui, '*.ui')))):
+            # Scan *.ui files to extract messages
+            for filename in glob(os.path.join(self.dir_ui, '*.ui')):
                 header_file = '%s.h' % filename
                 # Clear previous existing files
                 if os.path.isfile(header_file):
@@ -131,16 +129,16 @@ class Command_CreatePOT(Command):
                 # All the header files must be removed after the process
                 list_files_remove.append(header_file)
         else:
-            # Add *.glade and *.ui files to list of files to process
-            for filename in list(chain(
-                    glob(os.path.join(self.dir_ui, '*.glade')),
-                    glob(os.path.join(self.dir_ui, '*.ui')))):
+            # Add *.ui files to list of files to process
+            for filename in glob(os.path.join(self.dir_ui, '*.ui')):
                 list_files_process.append(os.path.relpath(filename,
                                                           self.dir_base))
         # Add *.py files to list of files to process
         for filename in recursive_glob(self.dir_base, '*.py'):
             list_files_process.append(os.path.relpath(filename,
                                                       self.dir_base))
+        # Sort the files to process them always in the same order (hopefully)
+        list_files_process.sort()
         # Extract messages from the files to process
         subprocess.call(
             args=chain(('xgettext',
@@ -159,6 +157,37 @@ class Command_CreatePOT(Command):
             for filename in list_files_remove:
                 if os.path.isfile(filename):
                     os.unlink(filename)
+
+
+class Command_CreatePO(Command):
+    description = "create translation PO file"
+    user_options = [
+        ('locale=', None, 'Define locale'),
+        ('output=', None, 'Define output file'),
+        ]
+
+    def initialize_options(self):
+        self.locale = None
+        self.output = None
+
+    def finalize_options(self):
+        self.dir_base = os.path.dirname(os.path.abspath(__file__))
+        self.dir_po = os.path.join(self.dir_base, 'po')
+        assert (self.locale), 'Missing locale'
+        assert (self.output), 'Missing output file'
+
+    def run(self):
+        self.dir_ui = os.path.join(self.dir_base, 'ui')
+        file_pot = '%s.pot' % os.path.join(self.dir_po, DOMAIN_NAME)
+        file_po = '%s.po' % os.path.join(self.dir_po, self.output)
+        # Create PO file
+        subprocess.call(
+            args=('msginit',
+                  '--input=%s' % file_pot,
+                  '--no-translator',
+                  '--output-file=%s' % file_po,
+                  '--locale=%s' % self.locale),
+            cwd=self.dir_base)
 
 
 class Command_Translations(Command):
@@ -209,6 +238,7 @@ setup(
         'install_scripts': Install_Scripts,
         'install_data': Install_Data,
         'create_pot': Command_CreatePOT,
+        'create_po': Command_CreatePO,
         'translations': Command_Translations
     }
 )
