@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Type=Application
+Name=gLiveSNMP
+Comment=Detect information on various devices via SNMP
+Comment[en]=Detect information on various devices via SNMP
+Comment[it]=Rileva informazioni su vari dispositivi via SNMP
+Terminal=false
+Categories=Network;GTK;
+Icon=glivesnmp
+TryExec=glivesnmp
+Exec=glivesnmp
