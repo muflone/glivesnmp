@@ -1,0 +1,173 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Fabio Castelli
+# This file is distributed under the same license as the gLiveSNMP package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gLiveSNMP 0.0.1\n"
+"Report-Msgid-Bugs-To: muflone(at)vbsimple.net\n"
+"POT-Creation-Date: 2016-06-12 01:29+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: glivesnmp/ui/about.py:59
+msgid "Contributors:"
+msgstr ""
+
+#: glivesnmp/ui/group_detail.py:86
+msgid "The group name is missing"
+msgstr ""
+
+#: glivesnmp/ui/group_detail.py:91
+msgid "The Group name is invalid"
+msgstr ""
+
+#: glivesnmp/ui/group_detail.py:96
+msgid "A group with that name already exists"
+msgstr ""
+
+#: glivesnmp/ui/groups.py:94
+msgid "Add new group"
+msgstr ""
+
+#: glivesnmp/ui/groups.py:110
+msgid "Remove the group"
+msgstr ""
+
+#: glivesnmp/ui/groups.py:111
+#, python-format
+msgid "Remove the group «%s»?"
+msgstr ""
+
+#: glivesnmp/ui/groups.py:120
+msgid "The group is not empty"
+msgstr ""
+
+#: glivesnmp/ui/groups.py:124
+msgid "All the hosts defined for the group will be lost."
+msgstr ""
+
+#: glivesnmp/ui/groups.py:125
+#, python-format
+msgid "Are you sure you want to delete the group «%s»?"
+msgstr ""
+
+#: glivesnmp/ui/host.py:120
+msgid "The host name is missing"
+msgstr ""
+
+#: glivesnmp/ui/host.py:125
+msgid "The host name is invalid"
+msgstr ""
+
+#: glivesnmp/ui/host.py:130
+msgid "A host with that name already exists"
+msgstr ""
+
+#: glivesnmp/ui/host.py:135
+msgid "The host description is missing"
+msgstr ""
+
+#: glivesnmp/ui/host.py:140
+msgid "The host address is missing"
+msgstr ""
+
+#: glivesnmp/ui/host.py:145
+msgid "The host address is invalid"
+msgstr ""
+
+#: glivesnmp/ui/host.py:150
+msgid "The community string is missing"
+msgstr ""
+
+#: glivesnmp/ui/main.py:293
+msgid "Default group"
+msgstr ""
+
+#: glivesnmp/ui/main.py:307
+msgid "Add a new host"
+msgstr ""
+
+#: glivesnmp/ui/main.py:341
+msgid "Edit host"
+msgstr ""
+
+#: glivesnmp/ui/main.py:376
+msgid "Remove host"
+msgstr ""
+
+#: glivesnmp/ui/main.py:377
+msgid "Remove the selected host?"
+msgstr ""
+
+#: glivesnmp/ui/main.py:393
+#, python-format
+msgid "Copy of %s"
+msgstr ""
+
+#: glivesnmp/ui/main.py:395
+msgid "Copy host"
+msgstr ""
+
+#: glivesnmp/ui/main.py:440
+msgid "Connection open failed"
+msgstr ""
+
+#: glivesnmp/ui/main.py:441
+msgid "An error occurred processing the service command."
+msgstr ""
+
+#: glivesnmp/ui/service_detail.py:94
+msgid "The service name is missing"
+msgstr ""
+
+#: glivesnmp/ui/service_detail.py:99
+msgid "The service name is invalid"
+msgstr ""
+
+#: glivesnmp/ui/service_detail.py:104
+msgid "A service with that name already exists"
+msgstr ""
+
+#: glivesnmp/ui/service_detail.py:109
+msgid "The service description is missing"
+msgstr ""
+
+#: glivesnmp/ui/service_detail.py:114
+msgid "The service description is invalid"
+msgstr ""
+
+#: glivesnmp/ui/services.py:90
+msgid "Add new service"
+msgstr ""
+
+#: glivesnmp/ui/services.py:106
+msgid "Edit service"
+msgstr ""
+
+#: glivesnmp/ui/services.py:123
+msgid "Remove service"
+msgstr ""
+
+#: glivesnmp/ui/services.py:124
+msgid "Remove the selected service?"
+msgstr ""
+
+#: ui/appmenu.ui:6
+msgid "Open _Settings folder"
+msgstr ""
+
+#: ui/appmenu.ui:12
+msgid "_About gLiveSNMP"
+msgstr ""
+
+#: ui/appmenu.ui:17
+msgid "_Quit"
+msgstr ""
