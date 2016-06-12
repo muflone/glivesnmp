@@ -53,8 +53,17 @@ else:
 # Set the paths for the folders
 DIR_DATA = os.path.join(DIR_PREFIX, 'data')
 DIR_UI = os.path.join(DIR_PREFIX, 'ui')
-DIR_SETTINGS = BaseDirectory.save_config_path(DOMAIN_NAME)
-DIR_HOSTS = BaseDirectory.save_config_path(os.path.join(DOMAIN_NAME, 'hosts'))
+try:
+    # In read-only environments, the settings folder cannot be created
+    # (eg in a Debian pbuilder fakeroot)
+    DIR_SETTINGS = BaseDirectory.save_config_path(DOMAIN_NAME)
+    DIR_HOSTS = BaseDirectory.save_config_path(
+        os.path.join(DOMAIN_NAME, 'hosts'))
+except:
+    # Get the settings path without actually creating it
+    DIR_SETTINGS = os.path.join(BaseDirectory.xdg_config_home, DOMAIN_NAME)
+    DIR_HOSTS = os.path.join(BaseDirectory.xdg_config_home, DOMAIN_NAME,
+                             'hosts')
 # Set the paths for the data files
 FILE_ICON = os.path.join(DIR_DATA, 'glivesnmp.png')
 FILE_CONTRIBUTORS = os.path.join(DIR_DOCS, 'contributors')
