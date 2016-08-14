@@ -55,8 +55,10 @@ OPTION_SERVICE_DESCRIPTION = 'description'
 SECTION_HOST = 'host'
 OPTION_HOST_NAME = 'name'
 OPTION_HOST_DESCRIPTION = 'description'
+OPTION_HOST_PROTOCOL = 'protocol'
 OPTION_HOST_ADDRESS = 'address'
 OPTION_HOST_PORT = 'port'
+OPTION_HOST_VERSION = 'version'
 OPTION_HOST_COMMUNITY = 'community'
 
 
@@ -248,10 +250,13 @@ class UIMain(object):
             name = settings_host.get(SECTION_HOST, OPTION_HOST_NAME)
             description = settings_host.get(SECTION_HOST,
                                             OPTION_HOST_DESCRIPTION)
+            protocol = settings_host.get(SECTION_HOST, OPTION_HOST_PROTOCOL)
             address = settings_host.get(SECTION_HOST, OPTION_HOST_ADDRESS)
             port_number = settings_host.get_int(SECTION_HOST, OPTION_HOST_PORT)
+            version = settings_host.get_int(SECTION_HOST, OPTION_HOST_VERSION)
             community = settings_host.get(SECTION_HOST, OPTION_HOST_COMMUNITY)
-            host = HostInfo(name, description, address, port_number, community)
+            host = HostInfo(name, description, protocol, address, port_number,
+                            version, community)
             self.add_host(host, False)
 
     def add_host(self, host, update_settings):
@@ -269,9 +274,13 @@ class UIMain(object):
             settings_host.set(SECTION_HOST, OPTION_HOST_NAME, host.name)
             settings_host.set(SECTION_HOST, OPTION_HOST_DESCRIPTION,
                               host.description)
+            settings_host.set(SECTION_HOST, OPTION_HOST_PROTOCOL,
+                              host.protocol)
             settings_host.set(SECTION_HOST, OPTION_HOST_ADDRESS, host.address)
             settings_host.set_int(SECTION_HOST, OPTION_HOST_PORT,
-                              host.port_number)
+                                  host.port_number)
+            settings_host.set_int(SECTION_HOST, OPTION_HOST_VERSION,
+                                  host.version)
             settings_host.set(SECTION_HOST, OPTION_HOST_COMMUNITY,
                               host.community)
             # Save the settings to the file
@@ -298,17 +307,21 @@ class UIMain(object):
 
     def on_action_new_activate(self, action):
         """Define a new host"""
-        dialog = UIHost(parent=self.ui.win_main, hosts=self.model_hosts)
+        dialog = UIHost(parent=self.ui.win_main,
+                        hosts=self.model_hosts)
         response = dialog.show(default_name='',
                                default_description='',
+                               default_protocol='UDP',
                                default_address='',
                                default_port_number=161,
+                               default_version=1,
                                default_community='public',
                                title=_('Add a new host'),
                                treeiter=None)
         if response == Gtk.ResponseType.OK:
-            host = HostInfo(dialog.name, dialog.description, dialog.address,
-                            dialog.port_number, dialog.community)
+            host = HostInfo(dialog.name, dialog.description, dialog.protocol,
+                            dialog.address, dialog.port_number, dialog.version,
+                            dialog.community)
             self.add_host(host=host,
                           update_settings=True)
             # Automatically select the newly added host
@@ -326,8 +339,10 @@ class UIMain(object):
                 # First level (host)
                 name = self.model_hosts.get_key(selected_row)
                 description = self.model_hosts.get_description(selected_row)
+                protocol = self.model_hosts.get_protocol(selected_row)
                 address = self.model_hosts.get_address(selected_row)
                 port_number = self.model_hosts.get_port_number(selected_row)
+                version = self.model_hosts.get_version(selected_row)
                 community = self.model_hosts.get_community(selected_row)
                 selected_iter = self.model_hosts.get_iter(name)
                 dialog = UIHost(parent=self.ui.win_main,
@@ -335,15 +350,18 @@ class UIMain(object):
                 # Show the edit host dialog
                 response = dialog.show(default_name=name,
                                        default_description=description,
+                                       default_protocol=protocol,
                                        default_address=address,
                                        default_port_number=port_number,
+                                       default_version=version,
                                        default_community=community,
                                        title=_('Edit host'),
                                        treeiter=selected_iter)
                 if response == Gtk.ResponseType.OK:
                     # Remove older host and add the newer
                     host = HostInfo(dialog.name, dialog.description,
-                                    dialog.address, dialog.port_number,
+                                    dialog.protocol, dialog.address,
+                                    dialog.port_number, dialog.version,
                                     dialog.community)
                     self.remove_host(name)
                     self.add_host(host=host,
@@ -396,7 +414,8 @@ class UIMain(object):
                                        treeiter=None)
                 if response == Gtk.ResponseType.OK:
                     host = HostInfo(dialog.name, dialog.description,
-                                    dialog.address, dialog.port_number,
+                                    dialog.protocol, dialog.address,
+                                    dialog.port_number, dialog.version,
                                     dialog.community)
                     self.add_host(host=host,
                                   update_settings=True)

@@ -23,9 +23,11 @@ from glivesnmp.models.abstract import ModelAbstract
 
 class ModelHosts(ModelAbstract):
     COL_DESCRIPTION = 1
-    COL_ADDRESS = 2
-    COL_PORT = 3
-    COL_COMMUNITY = 4
+    COL_PROTOCOL = 2
+    COL_ADDRESS = 3
+    COL_PORT = 4
+    COL_VERSION = 5
+    COL_COMMUNITY = 6
 
     def add_data(self, item):
         """Add a new row to the model if it doesn't exists"""
@@ -33,8 +35,10 @@ class ModelHosts(ModelAbstract):
         if item.name not in self.rows:
             new_row = self.model.append(None, (item.name,
                                                item.description,
+                                               item.protocol,
                                                item.address,
                                                item.port_number,
+                                               item.version,
                                                item.community))
             self.rows[item.name] = new_row
             return new_row
@@ -49,6 +53,10 @@ class ModelHosts(ModelAbstract):
         """Get the description from a TreeIter"""
         return self.model[treeiter][self.COL_DESCRIPTION]
 
+    def get_protocol(self, treeiter):
+        """Get the network protocol from a TreeIter"""
+        return self.model[treeiter][self.COL_PROTOCOL]
+
     def get_address(self, treeiter):
         """Get the address from a TreeIter"""
         return self.model[treeiter][self.COL_ADDRESS]
@@ -56,6 +64,10 @@ class ModelHosts(ModelAbstract):
     def get_port_number(self, treeiter):
         """Get the port number from a TreeIter"""
         return self.model[treeiter][self.COL_PORT]
+
+    def get_version(self, treeiter):
+        """Get the SNMP version from a TreeIter"""
+        return self.model[treeiter][self.COL_VERSION]
 
     def get_community(self, treeiter):
         """Get the community string from a TreeIter"""

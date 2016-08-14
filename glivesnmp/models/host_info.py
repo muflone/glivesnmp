@@ -20,9 +20,12 @@
 
 
 class HostInfo(object):
-    def __init__(self, name, description, address, port_number, community):
+    def __init__(self, name, description, protocol, address, port_number,
+                 version, community):
         self.name = name
         self.description = description
+        self.protocol = protocol
         self.address = address
         self.port_number = port_number
+        self.version = version
         self.community = community

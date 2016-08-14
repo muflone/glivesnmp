@@ -53,7 +53,10 @@ class UIHost(object):
             # Connect the actions accelerators
             widget.connect_accelerator()
             # Set labels
-            widget.set_label(text(widget.get_label()))
+            if widget.get_label():
+                widget.set_label(text(widget.get_label()))
+            else:
+                widget.set_label(text(widget.get_short_label()))
         # Initialize labels
         for widget in self.ui.get_objects_by_type(Gtk.Label):
             widget.set_label(text(widget.get_label()))
@@ -70,13 +73,16 @@ class UIHost(object):
         # Connect signals from the glade file to the module functions
         self.ui.connect_signals(self)
 
-    def show(self, default_name, default_description, default_address,
-             default_port_number, default_community, title, treeiter):
+    def show(self, default_name, default_description, default_protocol,
+             default_address, default_port_number, default_version,
+             default_community, title, treeiter):
         """Show the destinations dialog"""
         self.ui.txt_name.set_text(default_name)
         self.ui.txt_description.set_text(default_description)
+        self.ui.combo_protocol.set_active_id(default_protocol)
         self.ui.txt_address.set_text(default_address)
         self.ui.spin_port_number.set_value(default_port_number)
+        self.ui.action_snmp_v1.set_current_value(default_version)
         self.ui.txt_community.set_text(default_community)
         self.ui.txt_name.grab_focus()
         self.ui.dialog_host.set_title(title)
@@ -86,8 +92,10 @@ class UIHost(object):
         self.ui.dialog_host.hide()
         self.name = self.ui.txt_name.get_text().strip()
         self.description = self.ui.txt_description.get_text().strip()
+        self.protocol = self.ui.combo_protocol.get_active_id()
         self.address = self.ui.txt_address.get_text().strip()
         self.port_number = self.ui.spin_port_number.get_value_as_int()
+        self.version = 2 if self.ui.action_snmp_v2c.get_active() else 1
         self.community = self.ui.txt_community.get_text().strip()
         return response
 
