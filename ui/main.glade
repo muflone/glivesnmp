@@ -239,19 +239,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="tlb_copy">
-                <property name="use_action_appearance">True</property>
-                <property name="related_action">action_copy</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="use_underline">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkToolButton" id="tlb_connect">
                 <property name="use_action_appearance">True</property>
                 <property name="related_action">action_connect</property>

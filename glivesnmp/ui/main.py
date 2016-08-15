@@ -167,8 +167,7 @@ class UIMain(object):
         self.ui.win_main.set_titlebar(header_bar)
         # Add buttons to the left side
         for action in (self.ui.action_new, self.ui.action_edit,
-                       self.ui.action_copy, self.ui.action_connect,
-                       self.ui.action_delete):
+                       self.ui.action_connect, self.ui.action_delete):
             header_bar.pack_start(create_button_from_action(action))
         # Add buttons to the right side (in reverse order)
         for action in reversed((self.ui.action_services, self.ui.action_groups,
