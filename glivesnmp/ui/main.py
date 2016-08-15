@@ -49,6 +49,7 @@ from glivesnmp.ui.services import UIServices
 from glivesnmp.ui.devices import UIDevices
 from glivesnmp.ui.groups import UIGroups
 from glivesnmp.ui.host import UIHost
+from glivesnmp.ui.snmp_values import UISNMPValues
 from glivesnmp.ui.message_dialog import (
     show_message_dialog, UIMessageDialogNoYes, UIMessageDialogClose)
 
@@ -492,42 +493,21 @@ class UIMain(object):
     def on_action_connect_activate(self, action):
         """Establish the connection for the destination"""
         selected_row = get_treeview_selected_row(self.ui.tvw_connections)
-        if selected_row and not self.is_selected_row_host():
-            host = self.hosts[self.model_hosts.get_key(
-                self.ui.store_hosts.iter_parent(selected_row))]
-            description = self.model_hosts.get_association(selected_row)
-            service_name = self.model_hosts.get_service(selected_row)
-            service_arguments = self.model_hosts.get_arguments(selected_row)
-            arguments = json.loads(service_arguments)
-            if service_name in model_services.services:
-                service = model_services.services[service_name]
-                command = service.command
-                # Prepares the arguments
-                arguments_map = {}
-                arguments_map['address'] = destination.value
-                for key in association.service_arguments:
-                    arguments_map[key] = association.service_arguments[key]
-                # Execute command
-                try:
-                    command = command.format(**arguments_map)
-                except KeyError as error:
-                    # An error occurred processing the command
-                    error_msg1 = _('Connection open failed')
-                    error_msg2 = _('An error occurred processing the '
-                                   'service command.')
-                    show_message_dialog(
-                        class_=UIMessageDialogClose,
-                        parent=self.ui.win_main,
-                        message_type=Gtk.MessageType.ERROR,
-                        title=None,
-                        msg1=error_msg1,
-                        msg2=error_msg2,
-                        is_response_id=None)
-
-    def is_selected_row_host(self):
-        """Return if the currently selected row is an host"""
-        return self.ui.store_hosts.iter_parent(
-            get_treeview_selected_row(self.ui.tvw_connections)) is None
+        if selected_row:
+            model = self.model_hosts
+            dialog = UISNMPValues(
+                parent=self.ui.win_main,
+                host=HostInfo(name=model.get_key(selected_row),
+                              description=model.get_description(selected_row),
+                              protocol=model.get_protocol(selected_row),
+                              address=model.get_address(selected_row),
+                              port_number=model.get_port_number(selected_row),
+                              version=model.get_version(selected_row),
+                              community=model.get_community(selected_row),
+                              device=model.get_device(selected_row),
+                              requests=model.get_requests(selected_row))
+            )
+            dialog.show()
 
     def get_current_group_path(self):
         """Return the path of the currently selected group"""
