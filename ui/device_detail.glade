@@ -200,6 +200,8 @@
                     <child>
                       <object class="GtkTreeViewColumn" id="tvw_column_service">
                         <property name="title">Service</property>
+                        <property name="sort_indicator">True</property>
+                        <property name="sort_column_id">0</property>
                         <child>
                           <object class="GtkCellRendererToggle" id="cell_enabled">
                             <signal name="toggled" handler="on_column_enabled_toggled" swapped="no"/>

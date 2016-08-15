@@ -65,6 +65,10 @@ class UIDeviceDetail(object):
         self.model_services = ModelDeviceServices(self.ui.store_services)
         self.name = ''
         self.description = ''
+        # Sort the data in the models
+        self.model_services.model.set_sort_column_id(
+            self.ui.tvw_column_service.get_sort_column_id(),
+            Gtk.SortType.ASCENDING)
         # Connect signals from the glade file to the module functions
         self.ui.connect_signals(self)
 
