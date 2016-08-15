@@ -26,6 +26,9 @@ from glivesnmp.gtkbuilder_loader import GtkBuilderLoader
 from glivesnmp.functions import (
     check_invalid_input, get_ui_file, set_error_message_on_infobar, text, _)
 import glivesnmp.preferences as preferences
+import glivesnmp.settings as settings
+
+SECTION_WINDOW_NAME = 'service detail'
 
 
 class UIServiceDetail(object):
@@ -35,6 +38,9 @@ class UIServiceDetail(object):
         self.ui = GtkBuilderLoader(get_ui_file('service_detail.glade'))
         if not preferences.get(preferences.DETACHED_WINDOWS):
             self.ui.dialog_edit_service.set_transient_for(parent)
+        # Restore the saved size and position
+        settings.positions.restore_window_position(
+            self.ui.dialog_edit_service, SECTION_WINDOW_NAME)
         # Initialize actions
         for widget in self.ui.get_objects_by_type(Gtk.Action):
             # Connect the actions accelerators
@@ -71,7 +77,9 @@ class UIServiceDetail(object):
         return response
 
     def destroy(self):
-        """Destroy the Services dialog"""
+        """Destroy the Service detail dialog"""
+        settings.positions.save_window_position(
+            self.ui.dialog_edit_service, SECTION_WINDOW_NAME)
         self.ui.dialog_edit_service.destroy()
         self.ui.dialog_edit_service = None
 
