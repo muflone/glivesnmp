@@ -29,6 +29,7 @@ class ModelHosts(ModelAbstract):
     COL_VERSION = 5
     COL_COMMUNITY = 6
     COL_DEVICE = 7
+    COL_REQUESTS = 8
 
     def add_data(self, item):
         """Add a new row to the model if it doesn't exists"""
@@ -41,7 +42,8 @@ class ModelHosts(ModelAbstract):
                                                item.port_number,
                                                item.version,
                                                item.community,
-                                               item.device))
+                                               item.device,
+                                               item.requests))
             self.rows[item.name] = new_row
             return new_row
 
@@ -78,3 +80,7 @@ class ModelHosts(ModelAbstract):
     def get_device(self, treeiter):
         """Get the device from a TreeIter"""
         return self.model[treeiter][self.COL_DEVICE]
+
+    def get_requests(self, treeiter):
+        """Get the requests type from a TreeIter"""
+        return self.model[treeiter][self.COL_REQUESTS]

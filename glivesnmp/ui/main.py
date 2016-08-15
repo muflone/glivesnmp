@@ -68,6 +68,7 @@ OPTION_HOST_PORT = 'port'
 OPTION_HOST_VERSION = 'version'
 OPTION_HOST_COMMUNITY = 'community'
 OPTION_HOST_DEVICE = 'device'
+OPTION_HOST_REQUESTS = 'requests'
 
 
 class UIMain(object):
@@ -313,7 +314,9 @@ class UIMain(object):
                                               OPTION_HOST_VERSION),
                 community=settings_host.get(SECTION_HOST,
                                             OPTION_HOST_COMMUNITY),
-                device=settings_host.get(SECTION_HOST, OPTION_HOST_DEVICE))
+                device=settings_host.get(SECTION_HOST, OPTION_HOST_DEVICE),
+                requests=settings_host.get_int(SECTION_HOST,
+                                               OPTION_HOST_REQUESTS))
             self.add_host(host, False)
 
     def add_host(self, host, update_settings):
@@ -341,6 +344,8 @@ class UIMain(object):
             settings_host.set(SECTION_HOST, OPTION_HOST_COMMUNITY,
                               host.community)
             settings_host.set(SECTION_HOST, OPTION_HOST_DEVICE, host.device)
+            settings_host.set_int(SECTION_HOST, OPTION_HOST_REQUESTS,
+                                  host.requests)
             # Save the settings to the file
             settings_host.save()
 
@@ -380,7 +385,7 @@ class UIMain(object):
         if response == Gtk.ResponseType.OK:
             host = HostInfo(dialog.name, dialog.description, dialog.protocol,
                             dialog.address, dialog.port_number, dialog.version,
-                            dialog.community, dialog.device)
+                            dialog.community, dialog.device, dialog.requests)
             self.add_host(host=host,
                           update_settings=True)
             # Automatically select the newly added host
@@ -409,6 +414,7 @@ class UIMain(object):
                 version=model.get_version(selected_row),
                 community=model.get_community(selected_row),
                 device=model.get_device(selected_row),
+                requests=model.get_requests(selected_row),
                 title=_('Edit host'),
                 treeiter=selected_iter)
             if response == Gtk.ResponseType.OK:
@@ -416,7 +422,8 @@ class UIMain(object):
                 host = HostInfo(dialog.name, dialog.description,
                                 dialog.protocol, dialog.address,
                                 dialog.port_number, dialog.version,
-                                dialog.community, dialog.device)
+                                dialog.community, dialog.device,
+                                dialog.requests)
                 self.remove_host(name)
                 self.add_host(host=host,
                               update_settings=True)
@@ -465,7 +472,8 @@ class UIMain(object):
                 host = HostInfo(dialog.name, dialog.description,
                                 dialog.protocol, dialog.address,
                                 dialog.port_number, dialog.version,
-                                dialog.community, dialog.device)
+                                dialog.community, dialog.device,
+                                dialog.requests)
                 self.add_host(host=host,
                               update_settings=True)
                 # Get the path of the host

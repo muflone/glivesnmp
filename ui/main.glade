@@ -202,6 +202,8 @@
       <column type="gchararray"/>
       <!-- column-name Device -->
       <column type="gchararray"/>
+      <!-- column-name Requests -->
+      <column type="gint"/>
     </columns>
   </object>
   <object class="GtkApplicationWindow" id="win_main">
