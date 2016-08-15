@@ -27,7 +27,8 @@ from gi.repository import Gdk
 
 from glivesnmp.constants import (
     APP_NAME,
-    FILE_SETTINGS, FILE_WINDOWS_POSITION, FILE_SERVICES, DIR_HOSTS)
+    FILE_SETTINGS, FILE_WINDOWS_POSITION, FILE_SERVICES, FILE_DEVICES,
+    DIR_HOSTS)
 from glivesnmp.functions import (
     get_ui_file, get_treeview_selected_row, show_popup_menu, text, _)
 import glivesnmp.preferences as preferences
@@ -35,6 +36,8 @@ import glivesnmp.settings as settings
 from glivesnmp.gtkbuilder_loader import GtkBuilderLoader
 
 import glivesnmp.models.services as model_services
+import glivesnmp.models.devices as model_devices
+from glivesnmp.models.device_info import DeviceInfo
 from glivesnmp.models.service_info import ServiceInfo
 from glivesnmp.models.host_info import HostInfo
 from glivesnmp.models.hosts import ModelHosts
@@ -43,6 +46,7 @@ from glivesnmp.models.groups import ModelGroups
 
 from glivesnmp.ui.about import UIAbout
 from glivesnmp.ui.services import UIServices
+from glivesnmp.ui.devices import UIDevices
 from glivesnmp.ui.groups import UIGroups
 from glivesnmp.ui.host import UIHost
 from glivesnmp.ui.message_dialog import (
@@ -51,6 +55,9 @@ from glivesnmp.ui.message_dialog import (
 SECTION_WINDOW_NAME = 'main'
 # Options for services
 OPTION_SERVICE_DESCRIPTION = 'description'
+# Options for devices
+OPTION_DEVICE_DESCRIPTION = 'description'
+OPTION_DEVICE_SERVICES = 'services'
 # Section and options for host
 SECTION_HOST = 'host'
 OPTION_HOST_NAME = 'name'
@@ -60,6 +67,7 @@ OPTION_HOST_ADDRESS = 'address'
 OPTION_HOST_PORT = 'port'
 OPTION_HOST_VERSION = 'version'
 OPTION_HOST_COMMUNITY = 'community'
+OPTION_HOST_DEVICE = 'device'
 
 
 class UIMain(object):
@@ -69,6 +77,7 @@ class UIMain(object):
         settings.settings = settings.Settings(FILE_SETTINGS, False)
         settings.positions = settings.Settings(FILE_WINDOWS_POSITION, False)
         settings.services = settings.Settings(FILE_SERVICES, False)
+        settings.devices = settings.Settings(FILE_DEVICES, False)
         preferences.preferences = preferences.Preferences()
         # Load services
         for key in settings.services.get_sections():
@@ -76,6 +85,14 @@ class UIMain(object):
                 name=key,
                 description=settings.services.get(
                     key, OPTION_SERVICE_DESCRIPTION))
+        # Load devices
+        for key in settings.devices.get_sections():
+            model_devices.devices[key] = DeviceInfo(
+                name=key,
+                description=settings.devices.get(
+                    key, OPTION_DEVICE_DESCRIPTION),
+                services=settings.devices.get_list(
+                    key, OPTION_DEVICE_SERVICES))
         self.loadUI()
         self.model_hosts = ModelHosts(self.ui.store_hosts)
         self.model_groups = ModelGroups(self.ui.store_groups)
@@ -171,6 +188,7 @@ class UIMain(object):
             header_bar.pack_start(create_button_from_action(action))
         # Add buttons to the right side (in reverse order)
         for action in reversed((self.ui.action_services,
+                                self.ui.action_devices,
                                 self.ui.action_groups,
                                 self.ui.action_about)):
             header_bar.pack_end(create_button_from_action(action))
@@ -185,6 +203,7 @@ class UIMain(object):
             self.ui.win_main, SECTION_WINDOW_NAME)
         settings.positions.save()
         settings.services.save()
+        settings.devices.save()
         settings.settings.save()
         self.application.quit()
 
@@ -231,6 +250,41 @@ class UIMain(object):
                                                column=None,
                                                start_editing=False)
 
+    def on_action_devices_activate(self, action):
+        """Edit devices"""
+        selected_row = get_treeview_selected_row(self.ui.tvw_connections)
+        if selected_row:
+            iter_parent = self.ui.store_hosts.iter_parent(selected_row)
+            selected_path = self.model_hosts.model[selected_row].path
+            # Get the path of the host
+            if iter_parent is None:
+                tree_path = self.model_hosts.model[selected_row].path
+            else:
+                tree_path = self.model_hosts.model[iter_parent].path
+        dialog_devices = UIDevices(parent=self.ui.win_main)
+        # Load devices list
+        dialog_devices.model.load(model_devices.devices)
+        dialog_devices.show()
+        # Get the new devices list, clear and store the list again
+        model_devices.devices = dialog_devices.model.dump()
+        dialog_devices.destroy()
+        settings.devices.clear()
+        for key in model_devices.devices.iterkeys():
+            settings.devices.set(
+                section=key,
+                option=OPTION_DEVICE_DESCRIPTION,
+                value=model_devices.devices[key].description)
+            settings.devices.set(
+                section=key,
+                option=OPTION_DEVICE_SERVICES,
+                value=','.join(model_devices.devices[key].services))
+        self.reload_hosts()
+        if selected_row:
+            # Automatically select again the previously selected row
+            self.ui.tvw_connections.set_cursor(path=selected_path,
+                                               column=None,
+                                               start_editing=False)
+
     def reload_hosts(self):
         """Load hosts from the settings files"""
         self.model_hosts.clear()
@@ -258,7 +312,8 @@ class UIMain(object):
                 version=settings_host.get_int(SECTION_HOST,
                                               OPTION_HOST_VERSION),
                 community=settings_host.get(SECTION_HOST,
-                                            OPTION_HOST_COMMUNITY))
+                                            OPTION_HOST_COMMUNITY),
+                device=settings_host.get(SECTION_HOST, OPTION_HOST_DEVICE))
             self.add_host(host, False)
 
     def add_host(self, host, update_settings):
@@ -285,6 +340,7 @@ class UIMain(object):
                                   host.version)
             settings_host.set(SECTION_HOST, OPTION_HOST_COMMUNITY,
                               host.community)
+            settings_host.set(SECTION_HOST, OPTION_HOST_DEVICE, host.device)
             # Save the settings to the file
             settings_host.save()
 
@@ -318,12 +374,13 @@ class UIMain(object):
                                port_number=161,
                                version=1,
                                community='public',
+                               device='',
                                title=_('Add a new host'),
                                treeiter=None)
         if response == Gtk.ResponseType.OK:
             host = HostInfo(dialog.name, dialog.description, dialog.protocol,
                             dialog.address, dialog.port_number, dialog.version,
-                            dialog.community)
+                            dialog.community, dialog.device)
             self.add_host(host=host,
                           update_settings=True)
             # Automatically select the newly added host
@@ -352,6 +409,7 @@ class UIMain(object):
                     port_number=model.get_port_number(selected_row),
                     version=model.get_version(selected_row),
                     community=model.get_community(selected_row),
+                    device=model.get_device(selected_row),
                     title=_('Edit host'),
                     treeiter=selected_iter)
                 if response == Gtk.ResponseType.OK:
@@ -359,7 +417,7 @@ class UIMain(object):
                     host = HostInfo(dialog.name, dialog.description,
                                     dialog.protocol, dialog.address,
                                     dialog.port_number, dialog.version,
-                                    dialog.community)
+                                    dialog.community, dialog.device)
                     self.remove_host(name)
                     self.add_host(host=host,
                                   update_settings=True)
@@ -413,7 +471,7 @@ class UIMain(object):
                     host = HostInfo(dialog.name, dialog.description,
                                     dialog.protocol, dialog.address,
                                     dialog.port_number, dialog.version,
-                                    dialog.community)
+                                    dialog.community, dialog.device)
                     self.add_host(host=host,
                                   update_settings=True)
                     # Get the path of the host

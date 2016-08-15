@@ -29,7 +29,8 @@ from glivesnmp.functions import (
 import glivesnmp.preferences as preferences
 import glivesnmp.settings as settings
 
-import glivesnmp.models.services as model_services
+import glivesnmp.models.devices as model_devices
+from glivesnmp.models.devices import ModelDevices
 
 from glivesnmp.ui.message_dialog import (
     show_message_dialog, UIMessageDialogNoYes)
@@ -70,11 +71,12 @@ class UIHost(object):
         for widget in self.ui.get_objects_by_type(Gtk.TreeViewColumn):
             widget.set_title(text(widget.get_title()))
         self.selected_iter = None
+        self.model_devices = ModelDevices(self.ui.store_devices)
         # Connect signals from the glade file to the module functions
         self.ui.connect_signals(self)
 
     def show(self, name, description, protocol, address, port_number, version,
-             community, title, treeiter):
+             community, device, title, treeiter):
         """Show the destinations dialog"""
         self.ui.txt_name.set_text(name)
         self.ui.txt_description.set_text(description)
@@ -86,6 +88,14 @@ class UIHost(object):
         self.ui.txt_name.grab_focus()
         self.ui.dialog_host.set_title(title)
         self.selected_iter = treeiter
+        # Load the list of the devices
+        for device_info in model_devices.devices.values():
+            self.model_devices.add_data(device_info)
+        if device:
+            self.ui.combo_device.set_active_id(device)
+        if (self.ui.combo_device.get_active_id() < 0 and
+                self.model_devices.count()):
+            self.ui.combo_device.set_active(0)
         # Show the dialog
         response = self.ui.dialog_host.run()
         self.ui.dialog_host.hide()
@@ -96,6 +106,7 @@ class UIHost(object):
         self.port_number = self.ui.spin_port_number.get_value_as_int()
         self.version = 2 if self.ui.action_snmp_v2c.get_active() else 1
         self.community = self.ui.txt_community.get_text().strip()
+        self.device = self.ui.combo_device.get_active_id()
         return response
 
     def destroy(self):

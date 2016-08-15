@@ -33,6 +33,7 @@ SIZE_HEIGHT = 'height'
 settings = None
 positions = None
 services = None
+devices = None
 
 
 class Settings(object):

@@ -19,29 +19,26 @@
 ##
 
 from glivesnmp.models.abstract import ModelAbstract
+from glivesnmp.models.device_info import DeviceInfo
+
+devices = {}
 
 
-class ModelHosts(ModelAbstract):
+class ModelDevices(ModelAbstract):
     COL_DESCRIPTION = 1
-    COL_PROTOCOL = 2
-    COL_ADDRESS = 3
-    COL_PORT = 4
-    COL_VERSION = 5
-    COL_COMMUNITY = 6
-    COL_DEVICE = 7
+
+    def __init__(self, model):
+        """Add a list for enabled services"""
+        super(self.__class__, self).__init__(model)
+        self.services = {}
 
     def add_data(self, item):
         """Add a new row to the model if it doesn't exists"""
         super(self.__class__, self).add_data(item)
         if item.name not in self.rows:
-            new_row = self.model.append(None, (item.name,
-                                               item.description,
-                                               item.protocol,
-                                               item.address,
-                                               item.port_number,
-                                               item.version,
-                                               item.community,
-                                               item.device))
+            new_row = self.model.append((item.name,
+                                         item.description))
+            self.services[item.name] = item.services
             self.rows[item.name] = new_row
             return new_row
 
@@ -50,31 +47,23 @@ class ModelHosts(ModelAbstract):
         super(self.__class__, self).set_data(treeiter, item)
         self.model.set_value(treeiter, self.COL_KEY, item.name)
         self.model.set_value(treeiter, self.COL_DESCRIPTION, item.description)
+        self.services[item.name] = item.services
 
     def get_description(self, treeiter):
         """Get the description from a TreeIter"""
         return self.model[treeiter][self.COL_DESCRIPTION]
 
-    def get_protocol(self, treeiter):
-        """Get the network protocol from a TreeIter"""
-        return self.model[treeiter][self.COL_PROTOCOL]
+    def get_services(self, treeiter):
+        """Get the list of enabled services from a TreeIter"""
+        return self.services[self.get_key(treeiter)]
 
-    def get_address(self, treeiter):
-        """Get the address from a TreeIter"""
-        return self.model[treeiter][self.COL_ADDRESS]
-
-    def get_port_number(self, treeiter):
-        """Get the port number from a TreeIter"""
-        return self.model[treeiter][self.COL_PORT]
-
-    def get_version(self, treeiter):
-        """Get the SNMP version from a TreeIter"""
-        return self.model[treeiter][self.COL_VERSION]
-
-    def get_community(self, treeiter):
-        """Get the community string from a TreeIter"""
-        return self.model[treeiter][self.COL_COMMUNITY]
-
-    def get_device(self, treeiter):
-        """Get the device from a TreeIter"""
-        return self.model[treeiter][self.COL_DEVICE]
+    def dump(self):
+        """Extract the model data to a dict object"""
+        super(self.__class__, self).dump()
+        result = {}
+        for key in self.rows.iterkeys():
+            result[key] = DeviceInfo(
+                name=self.get_key(self.rows[key]),
+                description=self.get_description(self.rows[key]),
+                services=self.get_services(self.rows[key]))
+        return result
