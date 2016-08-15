@@ -400,9 +400,10 @@ class UIMain(object):
                                 hosts=self.model_hosts)
                 # Show the edit host dialog
                 model = self.model_hosts
-                selected_iter = model.get_iter(model.get_key(selected_row))
+                name = model.get_key(selected_row)
+                selected_iter = model.get_iter(name)
                 response = dialog.show(
-                    name=model.get_key(selected_row),
+                    name=name,
                     description=model.get_description(selected_row),
                     protocol=model.get_protocol(selected_row),
                     address=model.get_address(selected_row),

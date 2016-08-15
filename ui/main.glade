@@ -442,15 +442,21 @@
                         <property name="reorderable">True</property>
                         <property name="sort_column_id">2</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cell_address"/>
+                          <object class="GtkCellRendererText" id="cell_protocol"/>
                           <attributes>
                             <attribute name="text">2</attribute>
                           </attributes>
                         </child>
                         <child>
-                          <object class="GtkCellRendererSpin" id="cell_port"/>
+                          <object class="GtkCellRendererText" id="cell_address"/>
                           <attributes>
                             <attribute name="text">3</attribute>
+                          </attributes>
+                        </child>
+                        <child>
+                          <object class="GtkCellRendererSpin" id="cell_port"/>
+                          <attributes>
+                            <attribute name="text">4</attribute>
                           </attributes>
                         </child>
                       </object>
