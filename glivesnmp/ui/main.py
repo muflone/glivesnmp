@@ -394,50 +394,45 @@ class UIMain(object):
         """Define a new host"""
         selected_row = get_treeview_selected_row(self.ui.tvw_connections)
         if selected_row:
-            if self.is_selected_row_host():
-                # First level (host)
-                dialog = UIHost(parent=self.ui.win_main,
-                                hosts=self.model_hosts)
-                # Show the edit host dialog
-                model = self.model_hosts
-                name = model.get_key(selected_row)
-                selected_iter = model.get_iter(name)
-                response = dialog.show(
-                    name=name,
-                    description=model.get_description(selected_row),
-                    protocol=model.get_protocol(selected_row),
-                    address=model.get_address(selected_row),
-                    port_number=model.get_port_number(selected_row),
-                    version=model.get_version(selected_row),
-                    community=model.get_community(selected_row),
-                    device=model.get_device(selected_row),
-                    title=_('Edit host'),
-                    treeiter=selected_iter)
-                if response == Gtk.ResponseType.OK:
-                    # Remove older host and add the newer
-                    host = HostInfo(dialog.name, dialog.description,
-                                    dialog.protocol, dialog.address,
-                                    dialog.port_number, dialog.version,
-                                    dialog.community, dialog.device)
-                    self.remove_host(name)
-                    self.add_host(host=host,
-                                  update_settings=True)
-                    # Get the path of the host
-                    tree_path = self.model_hosts.get_path_by_name(dialog.name)
-                    # Automatically select again the previously selected host
-                    self.ui.tvw_connections.set_cursor(path=tree_path,
-                                                       column=None,
-                                                       start_editing=False)
+            dialog = UIHost(parent=self.ui.win_main,
+                            hosts=self.model_hosts)
+            # Show the edit host dialog
+            model = self.model_hosts
+            name = model.get_key(selected_row)
+            selected_iter = model.get_iter(name)
+            response = dialog.show(
+                name=name,
+                description=model.get_description(selected_row),
+                protocol=model.get_protocol(selected_row),
+                address=model.get_address(selected_row),
+                port_number=model.get_port_number(selected_row),
+                version=model.get_version(selected_row),
+                community=model.get_community(selected_row),
+                device=model.get_device(selected_row),
+                title=_('Edit host'),
+                treeiter=selected_iter)
+            if response == Gtk.ResponseType.OK:
+                # Remove older host and add the newer
+                host = HostInfo(dialog.name, dialog.description,
+                                dialog.protocol, dialog.address,
+                                dialog.port_number, dialog.version,
+                                dialog.community, dialog.device)
+                self.remove_host(name)
+                self.add_host(host=host,
+                              update_settings=True)
+                # Get the path of the host
+                tree_path = self.model_hosts.get_path_by_name(dialog.name)
+                # Automatically select again the previously selected host
+                self.ui.tvw_connections.set_cursor(path=tree_path,
+                                                   column=None,
+                                                   start_editing=False)
 
     def on_tvw_connections_row_activated(self, widget, treepath, column):
         """Edit the selected row on activation"""
         selected_row = get_treeview_selected_row(self.ui.tvw_connections)
-        if selected_row and self.is_selected_row_host():
+        if selected_row:
             # Start host edit
             self.ui.action_edit.activate()
-        else:
-            # Connect to the destination
-            self.ui.action_connect.activate()
 
     def on_action_delete_activate(self, action):
         """Remove the selected host"""
@@ -456,38 +451,35 @@ class UIMain(object):
         """Copy the selected host to another"""
         selected_row = get_treeview_selected_row(self.ui.tvw_connections)
         if selected_row:
-            if self.is_selected_row_host():
-                # First level (host)
-                name = self.model_hosts.get_key(selected_row)
-                description = self.model_hosts.get_description(selected_row)
-                selected_iter = self.model_hosts.get_iter(name)
-                dialog = UIHost(parent=self.ui.win_main,
-                                hosts=self.model_hosts)
-                # Show the edit host dialog
-                response = dialog.show(name=_('Copy of %s') % name,
-                                       description='',
-                                       title=_('Copy host'),
-                                       treeiter=None)
-                if response == Gtk.ResponseType.OK:
-                    host = HostInfo(dialog.name, dialog.description,
-                                    dialog.protocol, dialog.address,
-                                    dialog.port_number, dialog.version,
-                                    dialog.community, dialog.device)
-                    self.add_host(host=host,
-                                  update_settings=True)
-                    # Get the path of the host
-                    tree_path = self.model_hosts.get_path_by_name(dialog.name)
-                    # Automatically select again the previously selected host
-                    self.ui.tvw_connections.set_cursor(path=tree_path,
-                                                       column=None,
-                                                       start_editing=False)
+            name = self.model_hosts.get_key(selected_row)
+            description = self.model_hosts.get_description(selected_row)
+            selected_iter = self.model_hosts.get_iter(name)
+            dialog = UIHost(parent=self.ui.win_main,
+                            hosts=self.model_hosts)
+            # Show the edit host dialog
+            response = dialog.show(name=_('Copy of %s') % name,
+                                   description='',
+                                   title=_('Copy host'),
+                                   treeiter=None)
+            if response == Gtk.ResponseType.OK:
+                host = HostInfo(dialog.name, dialog.description,
+                                dialog.protocol, dialog.address,
+                                dialog.port_number, dialog.version,
+                                dialog.community, dialog.device)
+                self.add_host(host=host,
+                              update_settings=True)
+                # Get the path of the host
+                tree_path = self.model_hosts.get_path_by_name(dialog.name)
+                # Automatically select again the previously selected host
+                self.ui.tvw_connections.set_cursor(path=tree_path,
+                                                   column=None,
+                                                   start_editing=False)
 
     def on_tvw_connections_cursor_changed(self, widget):
         """Set actions sensitiveness for host and connection"""
         if get_treeview_selected_row(self.ui.tvw_connections):
-            self.ui.actions_connection.set_sensitive(
-                not self.is_selected_row_host())
-            self.ui.actions_host.set_sensitive(self.is_selected_row_host())
+            self.ui.actions_connection.set_sensitive(True)
+            self.ui.actions_host.set_sensitive(True)
 
     def on_action_connect_activate(self, action):
         """Establish the connection for the destination"""
