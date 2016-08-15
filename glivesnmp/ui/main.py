@@ -170,7 +170,8 @@ class UIMain(object):
                        self.ui.action_connect, self.ui.action_delete):
             header_bar.pack_start(create_button_from_action(action))
         # Add buttons to the right side (in reverse order)
-        for action in reversed((self.ui.action_services, self.ui.action_groups,
+        for action in reversed((self.ui.action_services,
+                                self.ui.action_groups,
                                 self.ui.action_about)):
             header_bar.pack_end(create_button_from_action(action))
 
@@ -246,16 +247,18 @@ class UIMain(object):
             settings_host = settings.Settings(
                 filename=os.path.join(hosts_path, filename),
                 case_sensitive=True)
-            name = settings_host.get(SECTION_HOST, OPTION_HOST_NAME)
-            description = settings_host.get(SECTION_HOST,
-                                            OPTION_HOST_DESCRIPTION)
-            protocol = settings_host.get(SECTION_HOST, OPTION_HOST_PROTOCOL)
-            address = settings_host.get(SECTION_HOST, OPTION_HOST_ADDRESS)
-            port_number = settings_host.get_int(SECTION_HOST, OPTION_HOST_PORT)
-            version = settings_host.get_int(SECTION_HOST, OPTION_HOST_VERSION)
-            community = settings_host.get(SECTION_HOST, OPTION_HOST_COMMUNITY)
-            host = HostInfo(name, description, protocol, address, port_number,
-                            version, community)
+            host = HostInfo(
+                name=settings_host.get(SECTION_HOST, OPTION_HOST_NAME),
+                description=settings_host.get(SECTION_HOST,
+                                              OPTION_HOST_DESCRIPTION),
+                protocol=settings_host.get(SECTION_HOST, OPTION_HOST_PROTOCOL),
+                address=settings_host.get(SECTION_HOST, OPTION_HOST_ADDRESS),
+                port_number=settings_host.get_int(SECTION_HOST,
+                                                  OPTION_HOST_PORT),
+                version=settings_host.get_int(SECTION_HOST,
+                                              OPTION_HOST_VERSION),
+                community=settings_host.get(SECTION_HOST,
+                                            OPTION_HOST_COMMUNITY))
             self.add_host(host, False)
 
     def add_host(self, host, update_settings):
@@ -308,13 +311,13 @@ class UIMain(object):
         """Define a new host"""
         dialog = UIHost(parent=self.ui.win_main,
                         hosts=self.model_hosts)
-        response = dialog.show(default_name='',
-                               default_description='',
-                               default_protocol='UDP',
-                               default_address='',
-                               default_port_number=161,
-                               default_version=1,
-                               default_community='public',
+        response = dialog.show(name='',
+                               description='',
+                               protocol='UDP',
+                               address='',
+                               port_number=161,
+                               version=1,
+                               community='public',
                                title=_('Add a new host'),
                                treeiter=None)
         if response == Gtk.ResponseType.OK:
@@ -336,26 +339,21 @@ class UIMain(object):
         if selected_row:
             if self.is_selected_row_host():
                 # First level (host)
-                name = self.model_hosts.get_key(selected_row)
-                description = self.model_hosts.get_description(selected_row)
-                protocol = self.model_hosts.get_protocol(selected_row)
-                address = self.model_hosts.get_address(selected_row)
-                port_number = self.model_hosts.get_port_number(selected_row)
-                version = self.model_hosts.get_version(selected_row)
-                community = self.model_hosts.get_community(selected_row)
-                selected_iter = self.model_hosts.get_iter(name)
                 dialog = UIHost(parent=self.ui.win_main,
                                 hosts=self.model_hosts)
                 # Show the edit host dialog
-                response = dialog.show(default_name=name,
-                                       default_description=description,
-                                       default_protocol=protocol,
-                                       default_address=address,
-                                       default_port_number=port_number,
-                                       default_version=version,
-                                       default_community=community,
-                                       title=_('Edit host'),
-                                       treeiter=selected_iter)
+                model = self.model_hosts
+                selected_iter = model.get_iter(model.get_key(selected_row))
+                response = dialog.show(
+                    name=model.get_key(selected_row),
+                    description=model.get_description(selected_row),
+                    protocol=model.get_protocol(selected_row),
+                    address=model.get_address(selected_row),
+                    port_number=model.get_port_number(selected_row),
+                    version=model.get_version(selected_row),
+                    community=model.get_community(selected_row),
+                    title=_('Edit host'),
+                    treeiter=selected_iter)
                 if response == Gtk.ResponseType.OK:
                     # Remove older host and add the newer
                     host = HostInfo(dialog.name, dialog.description,
@@ -407,8 +405,8 @@ class UIMain(object):
                 dialog = UIHost(parent=self.ui.win_main,
                                 hosts=self.model_hosts)
                 # Show the edit host dialog
-                response = dialog.show(default_name=_('Copy of %s') % name,
-                                       default_description='',
+                response = dialog.show(name=_('Copy of %s') % name,
+                                       description='',
                                        title=_('Copy host'),
                                        treeiter=None)
                 if response == Gtk.ResponseType.OK:

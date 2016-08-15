@@ -182,13 +182,13 @@
       <column type="gchararray"/>
       <!-- column-name Description -->
       <column type="gchararray"/>
-      <!-- column-name Network Protocol -->
+      <!-- column-name Protocol -->
       <column type="gchararray"/>
       <!-- column-name Address -->
       <column type="gchararray"/>
       <!-- column-name Port -->
       <column type="gint"/>
-      <!-- column-name SNMP Version -->
+      <!-- column-name Version -->
       <column type="gint"/>
       <!-- column-name Community -->
       <column type="gchararray"/>

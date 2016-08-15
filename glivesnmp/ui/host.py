@@ -73,17 +73,16 @@ class UIHost(object):
         # Connect signals from the glade file to the module functions
         self.ui.connect_signals(self)
 
-    def show(self, default_name, default_description, default_protocol,
-             default_address, default_port_number, default_version,
-             default_community, title, treeiter):
+    def show(self, name, description, protocol, address, port_number, version,
+             community, title, treeiter):
         """Show the destinations dialog"""
-        self.ui.txt_name.set_text(default_name)
-        self.ui.txt_description.set_text(default_description)
-        self.ui.combo_protocol.set_active_id(default_protocol)
-        self.ui.txt_address.set_text(default_address)
-        self.ui.spin_port_number.set_value(default_port_number)
-        self.ui.action_snmp_v1.set_current_value(default_version)
-        self.ui.txt_community.set_text(default_community)
+        self.ui.txt_name.set_text(name)
+        self.ui.txt_description.set_text(description)
+        self.ui.combo_protocol.set_active_id(protocol)
+        self.ui.txt_address.set_text(address)
+        self.ui.spin_port_number.set_value(port_number)
+        self.ui.action_snmp_v1.set_current_value(version)
+        self.ui.txt_community.set_text(community)
         self.ui.txt_name.grab_focus()
         self.ui.dialog_host.set_title(title)
         self.selected_iter = treeiter

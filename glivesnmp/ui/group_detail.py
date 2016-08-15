@@ -53,9 +53,9 @@ class UIGroupDetail(object):
         # Connect signals from the glade file to the module functions
         self.ui.connect_signals(self)
 
-    def show(self, default_name, title, treeiter):
+    def show(self, name, title, treeiter):
         """Show the Group detail dialog"""
-        self.ui.txt_name.set_text(default_name)
+        self.ui.txt_name.set_text(name)
         self.ui.txt_name.grab_focus()
         self.ui.dialog_edit_group.set_title(title)
         response = self.ui.dialog_edit_group.run()

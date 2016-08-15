@@ -85,8 +85,8 @@ class UIServices(object):
     def on_action_add_activate(self, action):
         """Add a new service"""
         dialog = UIServiceDetail(self.ui.dialog_services, self.model)
-        if dialog.show(default_name='',
-                       default_description='',
+        if dialog.show(name='',
+                       description='',
                        title=_('Add new service'),
                        treeiter=None) == Gtk.ResponseType.OK:
             self.model.add_data(ServiceInfo(name=dialog.name,
@@ -101,8 +101,8 @@ class UIServices(object):
             description = self.model.get_description(selected_row)
             selected_iter = self.model.get_iter(name)
             dialog = UIServiceDetail(self.ui.dialog_services, self.model)
-            if dialog.show(default_name=name,
-                           default_description=description,
+            if dialog.show(name=name,
+                           description=description,
                            title=_('Edit service'),
                            treeiter=selected_iter
                            ) == Gtk.ResponseType.OK:

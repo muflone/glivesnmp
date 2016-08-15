@@ -90,7 +90,7 @@ class UIGroups(object):
     def on_action_add_activate(self, action):
         """Add a new group"""
         dialog = UIGroupDetail(self.ui.dialog_groups, self.model)
-        if dialog.show(default_name='',
+        if dialog.show(name='',
                        title=_('Add new group'),
                        treeiter=None) == Gtk.ResponseType.OK:
             os.mkdir(os.path.join(DIR_HOSTS, dialog.name))
