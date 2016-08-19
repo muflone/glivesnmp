@@ -381,6 +381,7 @@ class UIMain(object):
                                version=1,
                                community='public',
                                device='',
+                               requests=0,
                                title=_('Add a new host'),
                                treeiter=None)
         if response == Gtk.ResponseType.OK:
