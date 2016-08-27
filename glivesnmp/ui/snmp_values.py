@@ -21,7 +21,6 @@
 
 import os
 import os.path
-import subprocess
 
 from gi.repository import Gtk
 
@@ -31,6 +30,7 @@ from glivesnmp.functions import (
     get_ui_file, get_treeview_selected_row, text, _)
 import glivesnmp.preferences as preferences
 import glivesnmp.settings as settings
+import glivesnmp.snmp as snmp
 
 from glivesnmp.ui.message_dialog import (
     show_message_dialog, UIMessageDialogNoYes)
@@ -101,36 +101,12 @@ class UISNMPValues(object):
         self.destroy()
 
     def on_action_refresh_activate(self, action):
-        fixed_arguments = ['snmpget', ]
-        fixed_arguments.append('-v1' if self.host.version == 1 else '-v2c')
-        fixed_arguments.append('-c')
-        fixed_arguments.append(self.host.community)
-        fixed_arguments.append('-OvQn')
-        fixed_arguments.append('-t')
-        fixed_arguments.append('0.3')
-        fixed_arguments.append('%s:%s:%d' % (self.host.protocol.lower(),
-                                             self.host.address,
-                                             self.host.port_number))
-        services = self.services.keys()
-        if self.host.requests == REQUESTS_MULTIPLE:
-            # Process multiple requests at once
-            arguments = fixed_arguments[:]
-            arguments.extend([self.services[value] for value in services])
-            process = subprocess.Popen(args=arguments,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            stdout = process.communicate()[0].split('\n')
-            for counter in xrange(len(services)):
-                treeiter = self.model.rows[services[counter]]
-                self.model.set_value(treeiter, stdout[counter])
-        else:
-            # Process a single request
-            for service in services:
-                arguments = fixed_arguments[:]
-                arguments.append(self.services[service])
-                treeiter = self.model.rows[service]
-                process = subprocess.Popen(args=arguments,
-                                           stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE)
-                stdout = process.communicate()[0].split('\n')
-                self.model.set_value(treeiter, stdout[0])
+        """Update values"""
+        for service in self.services.keys():
+            treeiter = self.model.rows[service]
+            value = snmp.snmp.get_from_host(host=self.host,
+                                            oid=self.services[service])
+            if value is not None:
+                self.model.set_value(treeiter, value)
+            else:
+                break

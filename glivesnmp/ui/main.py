@@ -33,6 +33,7 @@ from glivesnmp.functions import (
     get_ui_file, get_treeview_selected_row, show_popup_menu, text, _)
 import glivesnmp.preferences as preferences
 import glivesnmp.settings as settings
+import glivesnmp.snmp as snmp
 from glivesnmp.gtkbuilder_loader import GtkBuilderLoader
 
 import glivesnmp.models.services as model_services
@@ -75,6 +76,7 @@ OPTION_HOST_REQUESTS = 'requests'
 class UIMain(object):
     def __init__(self, application):
         self.application = application
+        snmp.snmp = snmp.SNMP()
         # Load settings
         settings.settings = settings.Settings(FILE_SETTINGS, False)
         settings.positions = settings.Settings(FILE_WINDOWS_POSITION, False)
