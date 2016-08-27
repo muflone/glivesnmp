@@ -20,6 +20,8 @@
 
 import subprocess
 
+from snmp_exception import SNMPException
+
 snmp = None
 
 
@@ -69,8 +71,7 @@ class SNMP(object):
                                    stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         if stderr:
-            print 'Error: ', stderr
-            return None
+            raise SNMPException(stderr.replace('\n', ''))
         else:
             datatype, value = stdout.replace('\n', '').split(': ', 1)
             if datatype == 'STRING':

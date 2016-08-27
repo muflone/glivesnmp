@@ -31,6 +31,7 @@ from glivesnmp.functions import (
 import glivesnmp.preferences as preferences
 import glivesnmp.settings as settings
 import glivesnmp.snmp as snmp
+from glivesnmp.snmp_exception import SNMPException
 
 from glivesnmp.ui.message_dialog import (
     show_message_dialog, UIMessageDialogNoYes)
@@ -104,9 +105,10 @@ class UISNMPValues(object):
         """Update values"""
         for service in self.services.keys():
             treeiter = self.model.rows[service]
-            value = snmp.snmp.get_from_host(host=self.host,
-                                            oid=self.services[service])
-            if value is not None:
-                self.model.set_value(treeiter, value)
-            else:
-                break
+            try:
+                value = snmp.snmp.get_from_host(host=self.host,
+                                                oid=self.services[service])
+            except SNMPException as error:
+                print 'Exception: %s' % error.value
+                value = 'Exception: %s' % error.value
+            self.model.set_value(treeiter, value)
