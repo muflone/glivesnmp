@@ -1,7 +1,4 @@
-gLiveSNMP
-[![Build Status](https://travis-ci.org/muflone/glivesnmp.svg?branch=master)](https://travis-ci.org/muflone/glivesnmp)
-[![Accedi alla chat su https://gitter.im/muflone/glivesnmp](https://badges.gitter.im/muflone/glivesnmp.svg)](https://gitter.im/muflone/glivesnmp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+gLiveSNMP [![Build Status](https://travis-ci.org/muflone/glivesnmp.svg?branch=master)](https://travis-ci.org/muflone/glivesnmp) [![Accedi alla chat su https://gitter.im/muflone/glivesnmp](https://badges.gitter.im/muflone/glivesnmp.svg)](https://gitter.im/muflone/glivesnmp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 =====
 **Descrizione:** Rileva informazioni su vari dispositivi via SNMP.
 
