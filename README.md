@@ -1,5 +1,7 @@
 gLiveSNMP [![Build Status](https://travis-ci.org/muflone/glivesnmp.svg?branch=master)](https://travis-ci.org/muflone/glivesnmp)
 =====
+
+[![Join the chat at https://gitter.im/muflone/glivesnmp](https://badges.gitter.im/muflone/glivesnmp.svg)](https://gitter.im/muflone/glivesnmp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 **Description:** Detect information on various devices via SNMP.
 
 **Copyright:** 2016 Fabio Castelli (Muflone) <muflone(at)vbsimple.net>
