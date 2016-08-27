@@ -440,8 +440,8 @@ class UIMain(object):
         """Edit the selected row on activation"""
         selected_row = get_treeview_selected_row(self.ui.tvw_connections)
         if selected_row:
-            # Start host edit
-            self.ui.action_edit.activate()
+            # Start host connection
+            self.ui.action_connect.activate()
 
     def on_action_delete_activate(self, action):
         """Remove the selected host"""
