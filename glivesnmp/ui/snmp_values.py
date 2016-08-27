@@ -21,6 +21,7 @@
 
 import os
 import os.path
+import threading
 
 from gi.repository import Gtk
 
@@ -31,6 +32,7 @@ from glivesnmp.functions import (
 import glivesnmp.preferences as preferences
 import glivesnmp.settings as settings
 import glivesnmp.snmp as snmp
+from glivesnmp.semaphored_thread import SemaphoredThread
 from glivesnmp.snmp_exception import SNMPException
 
 from glivesnmp.ui.message_dialog import (
@@ -103,12 +105,26 @@ class UISNMPValues(object):
 
     def on_action_refresh_activate(self, action):
         """Update values"""
-        for service in self.services.keys():
-            treeiter = self.model.rows[service]
+        def worker(treeiter, host, oid):
+            """Get a reply from SNMP and update the model accordingly"""
             try:
-                value = snmp.snmp.get_from_host(host=self.host,
-                                                oid=self.services[service])
+                value = snmp.snmp.get_from_host(host=host, oid=oid)
             except SNMPException as error:
                 print 'Exception: %s' % error.value
                 value = 'Exception: %s' % error.value
             self.model.set_value(treeiter, value)
+
+        # Set the number of maximum running threads
+        semaphore = threading.BoundedSemaphore(6)
+        for service in self.services.keys():
+            treeiter = self.model.rows[service]
+            self.model.set_value(treeiter, '')
+            # Create a new thread and launch it
+            thread = SemaphoredThread(semaphore=semaphore,
+                                      callback=worker,
+                                      arguments=(treeiter,
+                                                 self.host,
+                                                 self.services[service]),
+                                      name=self.services[service],
+                                      target=worker)
+            thread.start()
