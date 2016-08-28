@@ -69,11 +69,25 @@ class SNMP(object):
                                          self.translate(oid)],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        stdout, stderr = [stream.replace('\n', '')
+                          for stream in process.communicate()]
+        # Check returning values
         if stderr:
-            raise SNMPException(stderr.replace('\n', ''))
+            # Errors in stderr are always raised
+            raise SNMPException(stderr)
+        elif stdout == 'No Such Object available on this agent at this OID':
+            # Missing OID raises an exception
+            raise SNMPException(stdout)
+        elif not stdout:
+            # An empty reply raises an exception
+            raise SNMPException('Empty reply in SNMP request')
+        elif ': ' not in stdout:
+            # Message lacking the separator raises an exception
+            raise SNMPException(stdout)
         else:
-            datatype, value = stdout.replace('\n', '').split(': ', 1)
+            # Get data type and value for the response
+            datatype, value = stdout.split(': ', 1)
+            # Check data types
             if datatype == 'STRING':
                 if value.startswith('"') and value.endswith('"'):
                     # Strip quotes
