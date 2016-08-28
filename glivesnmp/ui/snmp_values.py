@@ -26,7 +26,7 @@ import threading
 from gi.repository import Gtk
 
 from glivesnmp.gtkbuilder_loader import GtkBuilderLoader
-from glivesnmp.constants import DIR_HOSTS, REQUESTS_MULTIPLE, REQUESTS_SINGLE
+from glivesnmp.constants import DIR_HOSTS
 from glivesnmp.functions import (
     get_ui_file, get_treeview_selected_row, text, _)
 import glivesnmp.preferences as preferences
@@ -115,7 +115,8 @@ class UISNMPValues(object):
             self.model.set_value(treeiter, value)
 
         # Set the number of maximum running threads
-        semaphore = threading.BoundedSemaphore(6)
+        semaphore = threading.BoundedSemaphore(
+            self.host.requests or preferences.get(preferences.MAX_REQUESTS))
         for service in self.services.keys():
             treeiter = self.model.rows[service]
             self.model.set_value(treeiter, '')

@@ -38,8 +38,6 @@ DOMAIN_NAME = 'glivesnmp'
 VERBOSE_LEVEL_QUIET = 0
 VERBOSE_LEVEL_NORMAL = 1
 VERBOSE_LEVEL_MAX = 2
-REQUESTS_MULTIPLE = 0
-REQUESTS_SINGLE = 1
 
 # Paths constants
 # If there's a file data/glivesnmp.png then the shared data are searched
