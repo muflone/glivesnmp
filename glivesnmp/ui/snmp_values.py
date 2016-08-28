@@ -24,6 +24,7 @@ import os.path
 import threading
 
 from gi.repository import Gtk
+from gi.repository import GLib
 
 from glivesnmp.gtkbuilder_loader import GtkBuilderLoader
 from glivesnmp.constants import DIR_HOSTS
@@ -85,6 +86,7 @@ class UISNMPValues(object):
             Gtk.SortType.ASCENDING)
         self.host = host
         self.ui.window_snmp.set_title(_('SNMP values for %s') % host.name)
+        self.completed_threads = 0
         # Connect signals from the glade file to the module functions
         self.ui.connect_signals(self)
 
@@ -105,6 +107,15 @@ class UISNMPValues(object):
 
     def on_action_refresh_activate(self, action):
         """Update values"""
+        def update_ui(treeiter, value):
+            """Update the UI in a thread-safe way using GLib"""
+            self.model.set_value(treeiter, value)
+            self.completed_threads += 1
+            self.ui.progress_requests.set_fraction(
+                float(self.completed_threads) / len(self.services.keys()))
+            if self.ui.progress_requests.get_fraction() == 1.0:
+                self.ui.progress_requests.set_visible(False)
+
         def worker(treeiter, host, oid):
             """Get a reply from SNMP and update the model accordingly"""
             try:
@@ -112,11 +123,14 @@ class UISNMPValues(object):
             except SNMPException as error:
                 print 'Exception: %s' % error.value
                 value = 'Exception: %s' % error.value
-            self.model.set_value(treeiter, value)
+            GLib.idle_add(update_ui, treeiter, value)
 
         # Set the number of maximum running threads
         semaphore = threading.BoundedSemaphore(
             self.host.requests or preferences.get(preferences.MAX_REQUESTS))
+        self.completed_threads = 0
+        self.ui.progress_requests.set_fraction(0.0)
+        self.ui.progress_requests.set_visible(True)
         for service in self.services.keys():
             treeiter = self.model.rows[service]
             self.model.set_value(treeiter, '')
