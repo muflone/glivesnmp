@@ -35,6 +35,11 @@ class SemaphoredThread(threading.Thread):
         from the semaphore"""
         self.semaphore.acquire()
         try:
-            self.callback(*self.arguments)
+            if not self.semaphore.cancel:
+                # Run thread
+                self.callback(*self.arguments)
+            else:
+                # Cancel running thread
+                pass
         finally:
             self.semaphore.release()

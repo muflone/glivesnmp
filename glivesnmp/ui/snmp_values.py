@@ -86,6 +86,7 @@ class UISNMPValues(object):
             Gtk.SortType.ASCENDING)
         self.host = host
         self.ui.window_snmp.set_title(_('SNMP values for %s') % host.name)
+        self.semaphore = None
         self.completed_threads = 0
         # Connect signals from the glade file to the module functions
         self.ui.connect_signals(self)
@@ -114,7 +115,7 @@ class UISNMPValues(object):
             self.ui.progress_requests.set_fraction(
                 float(self.completed_threads) / len(self.services.keys()))
             if self.ui.progress_requests.get_fraction() == 1.0:
-                self.ui.progress_requests.set_visible(False)
+                self.ui.action_refresh.set_active(False)
 
         def worker(treeiter, host, oid):
             """Get a reply from SNMP and update the model accordingly"""
@@ -125,21 +126,31 @@ class UISNMPValues(object):
                 value = 'Exception: %s' % error.value
             GLib.idle_add(update_ui, treeiter, value)
 
-        # Set the number of maximum running threads
-        semaphore = threading.BoundedSemaphore(
-            self.host.requests or preferences.get(preferences.MAX_REQUESTS))
-        self.completed_threads = 0
-        self.ui.progress_requests.set_fraction(0.0)
-        self.ui.progress_requests.set_visible(True)
-        for service in self.services.keys():
-            treeiter = self.model.rows[service]
-            self.model.set_value(treeiter, '')
-            # Create a new thread and launch it
-            thread = SemaphoredThread(semaphore=semaphore,
-                                      callback=worker,
-                                      arguments=(treeiter,
-                                                 self.host,
-                                                 self.services[service]),
-                                      name=self.services[service],
-                                      target=worker)
-            thread.start()
+        if self.ui.action_refresh.get_active():
+            # Scan for new data
+            self.completed_threads = 0
+            self.ui.progress_requests.set_fraction(0.0)
+            self.ui.progress_requests.set_visible(True)
+            self.ui.action_refresh.set_icon_name('media-playback-stop')
+            # Set the number of maximum running threads
+            self.semaphore = threading.BoundedSemaphore(
+                self.host.requests or
+                preferences.get(preferences.MAX_REQUESTS))
+            self.semaphore.cancel = False
+            for service in self.services.keys():
+                treeiter = self.model.rows[service]
+                self.model.set_value(treeiter, '')
+                # Create a new thread and launch it
+                thread = SemaphoredThread(semaphore=self.semaphore,
+                                          callback=worker,
+                                          arguments=(treeiter,
+                                                     self.host,
+                                                     self.services[service]),
+                                          name=self.services[service],
+                                          target=worker)
+                thread.start()
+        else:
+            # Stop a previous scan
+            self.semaphore.cancel = True
+            self.ui.progress_requests.set_visible(False)
+            self.ui.action_refresh.set_icon_name('media-playback-start')

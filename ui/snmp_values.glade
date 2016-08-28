@@ -6,9 +6,9 @@
   <object class="GtkActionGroup" id="actions_snmp">
     <property name="accel_group">accelerators</property>
     <child>
-      <object class="GtkAction" id="action_refresh">
-        <property name="short_label" translatable="yes">_Refresh</property>
-        <property name="icon_name">view-refresh</property>
+      <object class="GtkToggleAction" id="action_refresh">
+        <property name="short_label" translatable="yes">_Start</property>
+        <property name="icon_name">media-playback-start</property>
         <signal name="activate" handler="on_action_refresh_activate" swapped="no"/>
       </object>
       <accelerator key="F5"/>
@@ -49,7 +49,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkToolButton" id="tlb_refresh">
+              <object class="GtkToggleToolButton" id="tlb_refresh">
                 <property name="use_action_appearance">True</property>
                 <property name="related_action">action_refresh</property>
                 <property name="visible">True</property>
