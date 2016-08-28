@@ -104,6 +104,10 @@ class UISNMPValues(object):
         self.ui.window_snmp = None
 
     def on_window_snmp_delete_event(self, widget, event):
+        """Window closing event"""
+        # Disable timer and scan when the window is closed
+        self.ui.action_timer.set_active(False)
+        self.ui.action_refresh.set_active(False)
         self.destroy()
 
     def on_action_refresh_activate(self, action):
@@ -115,7 +119,15 @@ class UISNMPValues(object):
             self.ui.progress_requests.set_fraction(
                 float(self.completed_threads) / len(self.services.keys()))
             if self.ui.progress_requests.get_fraction() == 1.0:
-                self.ui.action_refresh.set_active(False)
+                # Start scan again if the timer is enabled
+                if self.ui.action_timer.get_active():
+                    self.ui.progress_requests.set_visible(False)
+                    GLib.timeout_add(self.ui.adjustment_timer.get_value(),
+                                     self.on_action_refresh_activate,
+                                     action)
+                else:
+                    # Stop the scan
+                    self.ui.action_refresh.set_active(False)
 
         def worker(treeiter, host, oid):
             """Get a reply from SNMP and update the model accordingly"""
@@ -154,3 +166,14 @@ class UISNMPValues(object):
             self.semaphore.cancel = True
             self.ui.progress_requests.set_visible(False)
             self.ui.action_refresh.set_icon_name('media-playback-start')
+            # Disable the timer when the scan is stopped
+            self.ui.action_timer.set_active(False)
+        # Returning False the timer automatically ends
+        # It will be fired again after the scan is completed
+        return False
+
+    def on_action_timer_toggled(self, action):
+        """Enable the timer for the autoscan"""
+        if self.ui.action_timer.get_active():
+            # Start scan when the timer is active
+            self.ui.action_refresh.set_active(True)
