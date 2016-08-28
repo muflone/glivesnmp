@@ -35,6 +35,9 @@
   </object>
   <object class="GtkWindow" id="window_snmp">
     <property name="can_focus">False</property>
+    <accel-groups>
+      <group name="accelerators"/>
+    </accel-groups>
     <signal name="delete-event" handler="on_window_snmp_delete_event" swapped="no"/>
     <child>
       <object class="GtkBox" id="box_snmp">
