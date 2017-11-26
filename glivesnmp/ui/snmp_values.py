@@ -76,7 +76,7 @@ class UISNMPValues(object):
         self.model = SNMPValues(self.ui.store_values)
         self.services = {}
         for service in model_devices.devices[host.device].services:
-            oid = model_services.services[service].description
+            oid = model_services.services[service].numeric_oid
             self.services[service] = oid
             value = SNMPValueInfo(name=service, value='', timestamp=0)
             self.model.add_data(value)

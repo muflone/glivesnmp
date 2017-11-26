@@ -22,6 +22,7 @@ import glivesnmp.preferences as preferences
 
 
 class ServiceInfo(object):
-    def __init__(self, name, description):
+    def __init__(self, name, description, numeric_oid):
         self.name = name
         self.description = description
+        self.numeric_oid = numeric_oid

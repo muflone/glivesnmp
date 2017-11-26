@@ -90,7 +90,8 @@ class UIServices(object):
                        title=_('Add new service'),
                        treeiter=None) == Gtk.ResponseType.OK:
             self.model.add_data(ServiceInfo(name=dialog.name,
-                                            description=dialog.description))
+                                            description=dialog.description,
+                                            numeric_oid=dialog.numeric_oid))
         dialog.destroy()
 
     def on_action_edit_activate(self, action):
@@ -99,17 +100,20 @@ class UIServices(object):
         if selected_row:
             name = self.model.get_key(selected_row)
             description = self.model.get_description(selected_row)
+            numeric_oid = self.model.get_numeric_oid(selected_row)
             selected_iter = self.model.get_iter(name)
             dialog = UIServiceDetail(self.ui.dialog_services, self.model)
             if dialog.show(name=name,
                            description=description,
+                           numeric_oid=numeric_oid,
                            title=_('Edit service'),
                            treeiter=selected_iter
                            ) == Gtk.ResponseType.OK:
                 # Update values
                 self.model.set_data(selected_iter, ServiceInfo(
                     name=dialog.name,
-                    description=dialog.description))
+                    description=dialog.description,
+                    numeric_oid=dialog.numeric_oid))
             dialog.destroy()
 
     def on_action_remove_activate(self, action):

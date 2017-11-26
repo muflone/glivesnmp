@@ -21,6 +21,7 @@
 from gi.repository import GdkPixbuf
 
 import glivesnmp.preferences as preferences
+import glivesnmp.snmp as snmp
 
 from glivesnmp.models.abstract import ModelAbstract
 from glivesnmp.models.service_info import ServiceInfo
@@ -30,6 +31,7 @@ services = {}
 
 class ModelServices(ModelAbstract):
     COL_DESCRIPTION = 1
+    COL_NUMERIC_OID = 2
 
     def add_data(self, item):
         """Add a new row to the model if it doesn't exists"""
@@ -37,7 +39,8 @@ class ModelServices(ModelAbstract):
         if item.name not in self.rows:
             new_row = self.model.append((
                 item.name,
-                item.description))
+                item.description,
+                item.numeric_oid))
             self.rows[item.name] = new_row
             return new_row
 
@@ -51,6 +54,10 @@ class ModelServices(ModelAbstract):
         """Get the description from a TreeIter"""
         return self.model[treeiter][self.COL_DESCRIPTION]
 
+    def get_numeric_oid(self, treeiter):
+        """Get the numeric OID from a TreeIter"""
+        return self.model[treeiter][self.COL_NUMERIC_OID]
+
     def dump(self):
         """Extract the model data to a dict object"""
         super(self.__class__, self).dump()
@@ -58,5 +65,7 @@ class ModelServices(ModelAbstract):
         for key in self.rows.iterkeys():
             result[key] = ServiceInfo(
                 name=self.get_key(self.rows[key]),
-                description=self.get_description(self.rows[key]))
+                description=self.get_description(self.rows[key]),
+                numeric_oid=snmp.snmp.translate(
+                    self.get_description(self.rows[key])))
         return result

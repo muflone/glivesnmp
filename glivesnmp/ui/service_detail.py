@@ -64,10 +64,11 @@ class UIServiceDetail(object):
         # Connect signals from the glade file to the module functions
         self.ui.connect_signals(self)
 
-    def show(self, name, description, title, treeiter):
+    def show(self, name, description, numeric_oid, title, treeiter):
         """Show the Services detail dialog"""
         self.ui.txt_name.set_text(name)
         self.ui.txt_description.set_text(description)
+        self.ui.txt_numeric_oid.set_text(numeric_oid)
         self.ui.txt_name.grab_focus()
         self.ui.dialog_edit_service.set_title(title)
         self.selected_iter = treeiter
@@ -75,6 +76,7 @@ class UIServiceDetail(object):
         self.ui.dialog_edit_service.hide()
         self.name = self.ui.txt_name.get_text().strip()
         self.description = self.ui.txt_description.get_text().strip()
+        self.numeric_oid = self.ui.txt_numeric_oid.get_text().strip()
         return response
 
     def destroy(self):
@@ -137,5 +139,5 @@ class UIServiceDetail(object):
         """Check the service description field"""
         check_invalid_input(widget, False, True, False)
         self.ui.txt_numeric_oid.set_text(
-            snmp.snmp.translate(widget.get_text().strip()) or 
+            snmp.snmp.translate(widget.get_text().strip()) or
             _('Unkown OID'))

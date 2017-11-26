@@ -87,7 +87,9 @@ class UIMain(object):
             model_services.services[key] = ServiceInfo(
                 name=key,
                 description=settings.services.get(
-                    key, OPTION_SERVICE_DESCRIPTION))
+                    key, OPTION_SERVICE_DESCRIPTION),
+                numeric_oid=snmp.snmp.translate(settings.services.get(
+                    key, OPTION_SERVICE_DESCRIPTION)))
         # Load devices
         for key in settings.devices.get_sections():
             model_devices.devices[key] = DeviceInfo(
