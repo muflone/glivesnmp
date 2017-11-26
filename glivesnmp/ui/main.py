@@ -454,10 +454,10 @@ class UIMain(object):
 
     def on_action_copy_activate(self, action):
         """Copy the selected host to another"""
-        selected_row = get_treeview_selected_row(self.ui.tvw_connections)
-        if selected_row:
-            name = self.model_hosts.get_key(selected_row)
-            description = self.model_hosts.get_description(selected_row)
+        row = get_treeview_selected_row(self.ui.tvw_connections)
+        if row:
+            model = self.model_hosts
+            name = self.model_hosts.get_key(row)
             selected_iter = self.model_hosts.get_iter(name)
             dialog = UIHost(parent=self.ui.win_main,
                             hosts=self.model_hosts)
@@ -465,6 +465,12 @@ class UIMain(object):
             response = dialog.show(name=_('Copy of %s') % name,
                                    description='',
                                    title=_('Copy host'),
+                                   protocol=model.get_protocol(row),
+                                   address=model.get_address(row),
+                                   port_number=model.get_port_number(row),
+                                   version=model.get_version(row),
+                                   community=model.get_community(row),
+                                   device=model.get_device(row),
                                    treeiter=None)
             if response == Gtk.ResponseType.OK:
                 host = HostInfo(dialog.name, dialog.description,
