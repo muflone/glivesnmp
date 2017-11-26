@@ -27,6 +27,7 @@ from glivesnmp.functions import (
     check_invalid_input, get_ui_file, set_error_message_on_infobar, text, _)
 import glivesnmp.preferences as preferences
 import glivesnmp.settings as settings
+import glivesnmp.snmp as snmp
 
 SECTION_WINDOW_NAME = 'service detail'
 
@@ -135,3 +136,6 @@ class UIServiceDetail(object):
     def on_txt_description_changed(self, widget):
         """Check the service description field"""
         check_invalid_input(widget, False, True, False)
+        self.ui.txt_numeric_oid.set_text(
+            snmp.snmp.translate(widget.get_text().strip()) or 
+            _('Unkown OID'))
