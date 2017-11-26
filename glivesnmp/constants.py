@@ -59,7 +59,7 @@ try:
     DIR_SETTINGS = BaseDirectory.save_config_path(DOMAIN_NAME)
     DIR_HOSTS = BaseDirectory.save_config_path(
         os.path.join(DOMAIN_NAME, 'hosts'))
-except:
+except Exception:
     # Get the settings path without actually creating it
     DIR_SETTINGS = os.path.join(BaseDirectory.xdg_config_home, DOMAIN_NAME)
     DIR_HOSTS = os.path.join(BaseDirectory.xdg_config_home, DOMAIN_NAME,
