@@ -110,7 +110,7 @@ class UIHost(object):
         return response
 
     def destroy(self):
-        """Destroy the destinations dialog"""
+        """Destroy the host dialog"""
         settings.positions.save_window_position(
             self.ui.dialog_host, SECTION_WINDOW_NAME)
         self.ui.dialog_host.destroy()
