@@ -116,18 +116,14 @@ class UISNMPValues(object):
             """Update the UI in a thread-safe way using GLib"""
             self.model.set_value(treeiter, value)
             self.completed_threads += 1
-            self.ui.progress_requests.set_fraction(
-                float(self.completed_threads) / len(self.services.keys()))
-            if self.ui.progress_requests.get_fraction() == 1.0:
-                # Start scan again if the timer is enabled
-                if self.ui.action_timer.get_active():
-                    self.ui.progress_requests.set_visible(False)
-                    GLib.timeout_add(self.ui.adjustment_timer.get_value(),
-                                     self.on_action_refresh_activate,
-                                     action)
-                else:
-                    # Stop the scan
-                    self.ui.action_refresh.set_active(False)
+            # Start scan again if the timer is enabled
+            if self.ui.action_timer.get_active():
+                GLib.timeout_add(self.ui.adjustment_timer.get_value(),
+                                 self.on_action_refresh_activate,
+                                 action)
+            else:
+                # Stop the scan
+                self.ui.action_refresh.set_active(False)
 
         def worker(treeiter, host, oid):
             """Get a reply from SNMP and update the model accordingly"""
@@ -141,8 +137,6 @@ class UISNMPValues(object):
         if self.ui.action_refresh.get_active():
             # Scan for new data
             self.completed_threads = 0
-            self.ui.progress_requests.set_fraction(0.0)
-            self.ui.progress_requests.set_visible(True)
             self.ui.action_refresh.set_icon_name('media-playback-stop')
             # Set the number of maximum running threads
             self.semaphore = threading.BoundedSemaphore(1)
@@ -162,7 +156,6 @@ class UISNMPValues(object):
         else:
             # Stop a previous scan
             self.semaphore.cancel = True
-            self.ui.progress_requests.set_visible(False)
             self.ui.action_refresh.set_icon_name('media-playback-start')
             # Disable the timer when the scan is stopped
             self.ui.action_timer.set_active(False)
