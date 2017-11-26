@@ -47,61 +47,73 @@ class SNMP(object):
                 self.oids[oid] = stdout.replace('\n', '')
         return self.oids[oid]
 
-    def get_from_host(self, host, oid):
+    def get_from_host(self, host, oids):
         """Get the value for a requested OID for a HostInfo object"""
         return self.get(protocol=host.protocol.lower(),
                         address=host.address,
                         port_number=host.port_number,
                         version=host.version,
                         community=host.community,
-                        oid=oid)
+                        oids=oids)
 
-    def get(self, protocol, address, port_number, version, community, oid):
-        """Get the value for a requested OID"""
-        process = subprocess.Popen(args=['snmpget',
-                                         '-v1' if version == 1 else '-v2c',
-                                         '-c', community,
-                                         '-O', 'vn',
-                                         '-t', '0.3',
-                                         '%s:%s:%d' % (protocol,
-                                                       address,
-                                                       port_number),
-                                         self.translate(oid)],
+    def get(self, protocol, address, port_number, version, community, oids):
+        """Get many values for requested OIDs"""
+        arguments = ['snmpget',
+                     '-v1' if version == 1 else '-v2c',
+                     '-c', community,
+                     '-O', 'n',
+                     '-t', '0.3',
+                     '%s:%s:%d' % (protocol, address, port_number),
+                     ]
+        results = {}
+        for oid in oids:
+            arguments.append(oid)
+            results[oid] = ''
+        process = subprocess.Popen(args=arguments,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
-        stdout, stderr = [stream.replace('\n', '')
-                          for stream in process.communicate()]
+        stdout, stderr = process.communicate()
         # Check returning values
         if stderr:
             # Errors in stderr are always raised
             raise SNMPException(stderr)
-        elif stdout == 'No Such Object available on this agent at this OID':
-            # Missing OID raises an exception
+        elif stdout.startswith('Timeout: No Response from'):
+            # No response raises an exception
             raise SNMPException(stdout)
         elif not stdout:
             # An empty reply raises an exception
             raise SNMPException('Empty reply in SNMP request')
-        elif ': ' not in stdout:
-            # Message lacking the separator raises an exception
-            raise SNMPException(stdout)
         else:
-            # Get data type and value for the response
-            datatype, value = stdout.split(': ', 1)
-            # Check data types
-            if datatype == 'STRING':
-                if value.startswith('"') and value.endswith('"'):
-                    # Strip quotes
-                    value = value[1:-1]
-            elif datatype in ('INTEGER', 'Counter32', 'IpAddress', 'OID'):
-                # No conversion needed
-                pass
-            elif datatype == 'Hex-STRING':
-                # Convert Hex string to string
-                value = str(bytearray.fromhex(value))
-            elif datatype == 'Timeticks':
-                # Skip the number of timeticks as the full time follows
-                value = value.split(') ')[1]
-            else:
-                # An unexpected data type was found
-                print 'Unexpected data type: %s' % datatype
-            return value
+            # We have some data to process
+            for line in stdout.split('\n'):
+                # Skip empty lines
+                if line:
+                    (oid, value) = line.split(' = ', 1)
+                    results[oid] = self.parse_value(value)
+            return results
+
+    def parse_value(self, data):
+        """Parse a returned value from snmpget"""
+        if ': ' not in data:
+            # Message lacking the separator raises an exception
+            raise SNMPException(data)
+        # Get data type and value for the response
+        datatype, value = data.split(': ', 1)
+        # Check data types
+        if datatype == 'STRING':
+            if value.startswith('"') and value.endswith('"'):
+                # Strip quotes
+                value = value[1:-1]
+        elif datatype in ('INTEGER', 'Counter32', 'IpAddress', 'OID'):
+            # No conversion needed
+            pass
+        elif datatype == 'Hex-STRING':
+            # Convert Hex string to string
+            value = str(bytearray.fromhex(value))
+        elif datatype == 'Timeticks':
+            # Skip the number of timeticks as the full time follows
+            value = value.split(') ')[1]
+        else:
+            # An unexpected data type was found
+            print 'Unexpected data type: %s' % datatype
+        return value

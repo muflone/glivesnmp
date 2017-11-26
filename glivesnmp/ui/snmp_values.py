@@ -112,10 +112,13 @@ class UISNMPValues(object):
 
     def on_action_refresh_activate(self, action):
         """Update values"""
-        def update_ui(treeiter, value):
+        def update_ui(values):
             """Update the UI in a thread-safe way using GLib"""
-            self.model.set_value(treeiter, value)
-            self.completed_threads += 1
+            for service in self.services.keys():
+                treeiter = self.model.rows[service]
+                self.model.set_value(treeiter,
+                                     values[self.services[service]])
+
             # Start scan again if the timer is enabled
             if self.ui.action_timer.get_active():
                 GLib.timeout_add(self.ui.adjustment_timer.get_value(),
@@ -125,14 +128,14 @@ class UISNMPValues(object):
                 # Stop the scan
                 self.ui.action_refresh.set_active(False)
 
-        def worker(treeiter, host, oid):
+        def worker(host, oids):
             """Get a reply from SNMP and update the model accordingly"""
             try:
-                value = snmp.snmp.get_from_host(host=host, oid=oid)
+                values = snmp.snmp.get_from_host(host, oids)
             except SNMPException as error:
                 print 'Exception: %s' % error.value
-                value = 'Exception: %s' % error.value
-            GLib.idle_add(update_ui, treeiter, value)
+                values = ['Exception: %s' % error.value, ]
+            GLib.idle_add(update_ui, values)
 
         if self.ui.action_refresh.get_active():
             # Scan for new data
@@ -141,18 +144,18 @@ class UISNMPValues(object):
             # Set the number of maximum running threads
             self.semaphore = threading.BoundedSemaphore(1)
             self.semaphore.cancel = False
+            oids = []
             for service in self.services.keys():
                 treeiter = self.model.rows[service]
                 self.model.set_value(treeiter, '')
-                # Create a new thread and launch it
-                thread = SemaphoredThread(semaphore=self.semaphore,
-                                          callback=worker,
-                                          arguments=(treeiter,
-                                                     self.host,
-                                                     self.services[service]),
-                                          name=self.services[service],
-                                          target=worker)
-                thread.start()
+                oids.append(self.services[service])
+            # Create a new thread and launch it
+            thread = SemaphoredThread(semaphore=self.semaphore,
+                                      callback=worker,
+                                      arguments=(self.host, oids),
+                                      name=self.services[service],
+                                      target=worker)
+            thread.start()
         else:
             # Stop a previous scan
             self.semaphore.cancel = True
