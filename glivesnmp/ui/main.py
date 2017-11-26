@@ -431,6 +431,7 @@ class UIMain(object):
                 self.ui.tvw_connections.set_cursor(path=tree_path,
                                                    column=None,
                                                    start_editing=False)
+            dialog.destroy()
 
     def on_tvw_connections_row_activated(self, widget, treepath, column):
         """Edit the selected row on activation"""
@@ -485,6 +486,7 @@ class UIMain(object):
                 self.ui.tvw_connections.set_cursor(path=tree_path,
                                                    column=None,
                                                    start_editing=False)
+            dialog.destroy()
 
     def on_tvw_connections_cursor_changed(self, widget):
         """Set actions sensitiveness for host and connection"""
