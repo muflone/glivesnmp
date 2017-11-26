@@ -145,9 +145,7 @@ class UISNMPValues(object):
             self.ui.progress_requests.set_visible(True)
             self.ui.action_refresh.set_icon_name('media-playback-stop')
             # Set the number of maximum running threads
-            self.semaphore = threading.BoundedSemaphore(
-                self.host.requests or
-                preferences.get(preferences.MAX_REQUESTS))
+            self.semaphore = threading.BoundedSemaphore(1)
             self.semaphore.cancel = False
             for service in self.services.keys():
                 treeiter = self.model.rows[service]

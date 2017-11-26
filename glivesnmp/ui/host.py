@@ -76,7 +76,7 @@ class UIHost(object):
         self.ui.connect_signals(self)
 
     def show(self, name, description, protocol, address, port_number, version,
-             community, device, requests, title, treeiter):
+             community, device, title, treeiter):
         """Show the destinations dialog"""
         self.ui.txt_name.set_text(name)
         self.ui.txt_description.set_text(description)
@@ -85,7 +85,6 @@ class UIHost(object):
         self.ui.spin_port_number.set_value(port_number)
         self.ui.action_snmp_v1.set_current_value(version)
         self.ui.txt_community.set_text(community)
-        self.ui.combo_requests.set_active_id(str(requests))
         self.ui.txt_name.grab_focus()
         self.ui.dialog_host.set_title(title)
         self.selected_iter = treeiter
@@ -108,7 +107,6 @@ class UIHost(object):
         self.version = 2 if self.ui.action_snmp_v2c.get_active() else 1
         self.community = self.ui.txt_community.get_text().strip()
         self.device = self.ui.combo_device.get_active_id()
-        self.requests = int(self.ui.combo_requests.get_active_id())
         return response
 
     def destroy(self):
