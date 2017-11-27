@@ -459,12 +459,13 @@ class UIMain(object):
         if row:
             model = self.model_hosts
             name = self.model_hosts.get_key(row)
+            description = self.model_hosts.get_description(row)
             selected_iter = self.model_hosts.get_iter(name)
             dialog = UIHost(parent=self.ui.win_main,
                             hosts=self.model_hosts)
             # Show the edit host dialog
             response = dialog.show(name=_('Copy of %s') % name,
-                                   description='',
+                                   description=description,
                                    title=_('Copy host'),
                                    protocol=model.get_protocol(row),
                                    address=model.get_address(row),
