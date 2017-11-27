@@ -87,6 +87,7 @@ class UIServices(object):
         dialog = UIServiceDetail(self.ui.dialog_services, self.model)
         if dialog.show(name='',
                        description='',
+                       numeric_oid='',
                        title=_('Add new service'),
                        treeiter=None) == Gtk.ResponseType.OK:
             self.model.add_data(ServiceInfo(name=dialog.name,
