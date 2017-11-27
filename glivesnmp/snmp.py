@@ -62,7 +62,7 @@ class SNMP(object):
                      '-v1' if version == 1 else '-v2c',
                      '-c', community,
                      '-O', 'n',
-                     '-t', '0.3',
+                     '-t', '1.0',
                      '%s:%s:%d' % (protocol, address, port_number),
                      ]
         results = {}
