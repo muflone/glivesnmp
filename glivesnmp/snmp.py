@@ -89,14 +89,16 @@ class SNMP(object):
                 # Skip empty lines
                 if line:
                     (oid, value) = line.split(' = ', 1)
+                    if ': ' not in value:
+                        print 'wrong data for oid %s' % oid
                     results[oid] = self.parse_value(value)
             return results
 
     def parse_value(self, data):
         """Parse a returned value from snmpget"""
         if ': ' not in data:
-            # Message lacking the separator raises an exception
-            raise SNMPException(data)
+            # Message lacking the separator are always treated like strings
+            data = 'STRING: %s' % data
         # Get data type and value for the response
         datatype, value = data.split(': ', 1)
         # Check data types
