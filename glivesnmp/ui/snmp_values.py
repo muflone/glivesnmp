@@ -117,7 +117,10 @@ class UISNMPValues(object):
             for service in self.services.keys():
                 treeiter = self.model.rows[service]
                 self.model.set_value(treeiter,
-                                     values[self.services[service]])
+                                     values.get(self.services[service],
+                                                _('<SNMP Error>')))
+                if values.has_key('error'):
+                    print values
 
             # Start scan again if the timer is enabled
             if self.ui.action_timer.get_active():
@@ -134,7 +137,7 @@ class UISNMPValues(object):
                 values = snmp.snmp.get_from_host(host, oids)
             except SNMPException as error:
                 print 'Exception: %s' % error.value
-                values = ['Exception: %s' % error.value, ]
+                values = {'error': 'Exception: %s' % error.value}
             GLib.idle_add(update_ui, values)
 
         if self.ui.action_refresh.get_active():
